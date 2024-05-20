@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>드래그</title>
+  <style>
+    .container {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr); /* 8개의 열 */
+      grid-template-rows: repeat(5, 1fr); /* 5개의 행 */
+      gap: 5px;
+    }
+    .square {
+      width: 100px;
+      height: 100px;
+      /*background-color: lightgray;*/
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #dee2e6;
+      cursor: pointer;
+    }
+    .clicked {
+      background: #f0d001;
+      transition: 0.2s ease box-shadow, 0.2s ease transform;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- JavaScript will generate the squares here -->
+</div>
+<script>
+  const container = document.querySelector('.container');
+  let isDragging = false;
+  let startX, startY;
+
+  // Generate squares
+  for (let y = 1; y <= 5; y++) { // 세로 5
+    for (let x = 1; x <= 8; x++) { // 가로 8
+      const square = document.createElement('div');
+      square.className = 'square';
+      square.id = `${x},${y}`;
+      container.appendChild(square);
+
+      // Add click event listener to toggle 'clicked' class
+      square.addEventListener('click', () => {
+        square.classList.toggle('clicked');
+      });
+    }
+  }
+
+
+  container.addEventListener('mousedown', (event) => {
+    if (event.target.classList.contains('square')) {
+      isDragging = true;
+      const [startXStr, startYStr] = event.target.id.split(',');
+      startX = parseInt(startXStr, 10);
+      startY = parseInt(startYStr, 10);
+
+      // Debugging: Log startX and startY
+      console.log('StartX:', startX, 'StartY:', startY);
+    }
+  });
+
+  container.addEventListener('mousemove', (event) => {
+    if (isDragging && event.target.classList.contains('square')) {
+      const [currentXStr, currentYStr] = event.target.id.split(',');
+      const currentX = parseInt(currentXStr, 10);
+      const currentY = parseInt(currentYStr, 10);
+
+      // Debugging: Log currentX and currentY
+      console.log('CurrentX:', currentX, 'CurrentY:', currentY);
+
+      // Calculate the bounding box
+      const minX = Math.min(startX, currentX);
+      const maxX = Math.max(startX, currentX);
+      const minY = Math.min(startY, currentY);
+      const maxY = Math.max(startY, currentY);
+
+      // Highlight or unhighlight the selected area
+      for (let x = minX; x <= maxX; x++) {
+        for (let y = minY; y <= maxY; y++) {
+          const square = document.getElementById(`${x},${y}`);
+          if (square) {
+            square.classList.add('clicked');
+          }
+        }
+      }
+    }
+  });
+
+  container.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+
+  container.addEventListener('mouseleave', () => {
+    isDragging = false;
+  });
+
+</script>
+</body>
+</html>

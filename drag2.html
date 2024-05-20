@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+  <title>드래그</title>
+  <style>
+    .container {
+      display: grid;
+      grid-template-columns: repeat(8, 100px);
+      grid-template-rows: repeat(5, 100px);
+      gap: 5px;
+    }
+    .square {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #dee2e6;
+      cursor: pointer;
+    }
+    .clicked {
+        background: #f0d001;
+        transition: 0.2s ease box-shadow, 0.2s ease transform;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- JavaScript will generate the squares here -->
+</div>
+<script>
+  const container = document.querySelector('.container');
+
+  class DragHandler {
+    constructor() {
+      this.isDragging = false;
+      this.startX = null;
+      this.startY = null;
+      this.isRemoving = false;
+      this.attachEvents();
+    }
+
+    attachEvents() {
+      container.addEventListener('mousedown', this.handleMouseDown.bind(this));
+      container.addEventListener('mousemove', this.handleMouseMove.bind(this));
+      container.addEventListener('mouseup', this.handleMouseUp.bind(this));
+      container.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
+    }
+
+    handleMouseDown(event) {
+      if (event.target.classList.contains('square')) {
+        this.isDragging = true;
+        const [startXStr, startYStr] = event.target.id.split(',');
+        this.startX = parseInt(startXStr, 10);
+        this.startY = parseInt(startYStr, 10);
+        this.isRemoving = event.target.classList.contains('clicked');
+      }
+    }
+
+    handleMouseMove(event) {
+      if (this.isDragging && event.target.classList.contains('square')) {
+        const [currentXStr, currentYStr] = event.target.id.split(',');
+        const currentX = parseInt(currentXStr, 10);
+        const currentY = parseInt(currentYStr, 10);
+
+        // Calculate the bounding box
+        const minX = Math.min(this.startX, currentX);
+        const maxX = Math.max(this.startX, currentX);
+        const minY = Math.min(this.startY, currentY);
+        const maxY = Math.max(this.startY, currentY);
+
+        // Highlight or unhighlight the selected area
+        for (let x = minX; x <= maxX; x++) {
+          for (let y = minY; y <= maxY; y++) {
+            const square = document.getElementById(`${x},${y}`);
+            if (square) {
+              if (this.isRemoving) {
+                square.classList.remove('clicked');
+              } else {
+                square.classList.add('clicked');
+              }
+            }
+          }
+        }
+      }
+    }
+
+    handleMouseUp() {
+      this.isDragging = false;
+    }
+
+    handleMouseLeave() {
+      this.isDragging = false;
+    }
+  }
+
+  // Initialize drag handler
+  new DragHandler();
+
+  // Generate squares
+  for (let x = 1; x <= 5; x++) {
+    for (let y = 1; y <= 8; y++) {
+      const square = document.createElement('div');
+      square.className = 'square';
+      square.id = `${x},${y}`;
+      // square.textContent = `${x},${y}`;
+      container.appendChild(square);
+    }
+  }
+
+  // Add click event listener to toggle 'clicked' class
+  container.addEventListener('click', (event) => {
+    if (event.target.classList.contains('square')) {
+      event.target.classList.toggle('clicked');
+    }
+  });
+</script>
+</body>
+</html>
